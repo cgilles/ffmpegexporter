@@ -59,11 +59,12 @@ int main(int argc, char** argv)
     }
 
     FFmpegExporter converter;
-    converter.init(outputFile, false, QRect(0, 0, 800, 600));
+    converter.init(outputFile, true, QRect(0, 0, 800, 600));
     int i = 0;
 
     foreach (const QString& filename, images)
     {
+        qDebug() << "Processing" << filename;
         QImage img(filename);
         converter.addFrame(img, i++);
     }
