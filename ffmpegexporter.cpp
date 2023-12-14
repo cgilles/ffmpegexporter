@@ -1,3 +1,5 @@
+#include "ffmpegexporter.h"
+
 #include <QtWidgets>
 #include <iostream>
 #include <cstdlib>
@@ -13,13 +15,13 @@ extern "C" {
 }
 
 int ERROR_BUFSIZ = 1024;
-int64_t nextPts = 0;
+int64_t nextPts  = 0;
 
 
-class GIFExporter {
+class FFmpegExporter {
 public:
 
-    GIFExporter()
+    FFmpegExporter()
     {
         errorstring = new char[ERROR_BUFSIZ];
     }
