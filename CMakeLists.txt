@@ -22,6 +22,7 @@ include(RulesFFmpeg)
 
 add_executable(ffmpegexporter
                ffmpegexporter.cpp
+               main.cpp
 )
 
 target_link_libraries(ffmpegexporter

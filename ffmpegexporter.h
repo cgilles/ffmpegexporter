@@ -1,12 +1,24 @@
 #pragma once
 
+#include <QString>
+#include <QRect>
+#include <QImage>
+
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libavutil/avutil.h>
+#include <libavutil/imgutils.h>
+}
+
 class FFmpegExporter
 {
 
 public:
 
     FFmpegExporter();
-
 
     // Call this before begining exporting.
     void init(const QString &fileName, bool crop, QRect rect);

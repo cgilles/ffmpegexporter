@@ -28,9 +28,9 @@
 #include <QByteArray>
 #include <QCoreApplication>
 
-// Local includes
+#include "ffmpegexporter.h"
 
-using namespace Digikam;
+// Local includes
 
 int main(int argc, char** argv)
 {
@@ -43,6 +43,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    FFmpegExporter converter;
 
     return 0;
 }
