@@ -16,11 +16,13 @@ void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
     this->fileName = fileName;
 
     // Allows you to crop each image with the same rectangle if you want
+
     this->crop = crop;
     this->rect = rect;
 
     // Make sure fileName ends with .gif
     // if we get errors here maybe it assigned the wrong codec
+
     error = avformat_alloc_output_context2(&this->formatContext, NULL, NULL, fileName.toStdString().data());
 
     if (error < 0)
@@ -31,32 +33,36 @@ void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
     }
 
     // Adding the video streams using the default format codecs and initializing the codecs...
+
     this->outputFormat = this->formatContext->oformat;
 
     if (this->outputFormat->video_codec != AV_CODEC_ID_NONE)
     {
         // Finding a registered encoder with a matching codec ID...
+
         this->codec = avcodec_find_encoder(this->outputFormat->video_codec);
 
         if (this->codec == NULL)
         {
             // It doesn't return an error number
+
             qWarning() << "Encoder not found";
             exit(1);
         }
 
         // Adding a new stream to a media file...
+
         this->stream = avformat_new_stream(this->formatContext, this->codec);
 
         if (this->stream == NULL)
         {
             // It doesn't return an error number
+
             qWarning() << "Could not create new AVStream";
             exit(1);
         }
 
-        this->stream->id = this->formatContext->nb_streams - 1;
-
+        this->stream->id   = this->formatContext->nb_streams - 1;
         this->codecContext = avcodec_alloc_context3(this->codec);
 
         if (this->codecContext == NULL)
@@ -69,6 +75,7 @@ void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
         switch (this->codec->type)
         {
             case AVMEDIA_TYPE_VIDEO:
+            {
                 this->codecContext->codec_id  = this->outputFormat->video_codec; // here, outputFormat->video_codec should be AV_CODEC_ID_GIF
                 this->codecContext->bit_rate  = 400000;
 
@@ -83,23 +90,29 @@ void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
 
                 // I needed to multiply this by 3 because for some reason, the GIF was 3x slower than normal.
                 // GIF frame rates have a hard limit of 100FPS. If FRAME_RATE=30 i.e. 30FPS then this workaround actually encodes it at 90FPS
-                // If however the GIF moves too fast because of this then remove the *3 from the next line.    
+                // If however the GIF moves too fast because of this then remove the *3 from the next line.
+
                 this->stream->time_base       = (AVRational){1, FRAME_RATE*3};
                 this->codecContext->time_base = this->stream->time_base;
 
                 // Intra frames only, no groups of frames. Bad for compression but I don't want to handle receiving extra frames here,
                 // And I don't think GIF codec can even emit groups of frames.
+
                 this->codecContext->gop_size  = 0;
                 break;
+            }
+
             case AVMEDIA_TYPE_UNKNOWN:
             case AVMEDIA_TYPE_AUDIO:
             case AVMEDIA_TYPE_DATA:
             case AVMEDIA_TYPE_SUBTITLE:
             case AVMEDIA_TYPE_ATTACHMENT:
             case AVMEDIA_TYPE_NB:
+            {
                 qWarning() << "Invalid media type "  << this->codec->type;
                 exit(1);
                 break;
+            }
         }
 
         if (this->formatContext->oformat->flags & AVFMT_GLOBALHEADER)
@@ -109,6 +122,7 @@ void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
     }
 
     // This isn't thread-safe.
+
     error = avcodec_open2(this->codecContext, this->codec, NULL);
 
     if (error < 0)
@@ -132,6 +146,7 @@ void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
     if (!(this->outputFormat->flags & AVFMT_NOFILE))
     {
         // it should not have AVFMT_NOFILE
+
         error = avio_open(&this->formatContext->pb, fileName.toStdString().data(), AVIO_FLAG_WRITE);
 
         if (error < 0)
@@ -143,6 +158,7 @@ void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
     }
 
     // Writing the stream header, if any...
+
     error = avformat_write_header(this->formatContext, NULL);
 
     if      (error < 0)
@@ -246,6 +262,7 @@ void FFmpegExporter::addFrame(const QImage &img, int framenumber)
     }
 
     // Converting QImage to AV_PIX_FMT_BGRA AVFrame ... 
+
     for (qint32 y = 0; y < height; y++)
     {
         const uint8_t * scanline = cropped.scanLine(y);
@@ -265,8 +282,8 @@ void FFmpegExporter::addFrame(const QImage &img, int framenumber)
         frame = Q_NULLPTR;
     }
 
-    frame = av_frame_alloc();
-    frame->width = codecContext->width;
+    frame         = av_frame_alloc();
+    frame->width  = codecContext->width;
     frame->height = codecContext->height;
     frame->format = codecContext->pix_fmt;
 
@@ -286,8 +303,8 @@ void FFmpegExporter::addFrame(const QImage &img, int framenumber)
         yuvFrame = Q_NULLPTR;
     }
 
-    yuvFrame = av_frame_alloc();
-    yuvFrame->width = codecContext->width;
+    yuvFrame         = av_frame_alloc();
+    yuvFrame->width  = codecContext->width;
     yuvFrame->height = codecContext->height;
     yuvFrame->format = AV_PIX_FMT_YUV420P;
 
@@ -361,6 +378,7 @@ void FFmpegExporter::addFrame(const QImage &img, int framenumber)
     if (packet == NULL)
     {
         // It doesn't return an error number
+
         qWarning() << "Could not allocate AVPacket";
         exit(1);
     }
@@ -368,6 +386,7 @@ void FFmpegExporter::addFrame(const QImage &img, int framenumber)
     av_init_packet(packet);
 
     // Packet data will be allocated by the encoder
+
     packet->data = NULL;
     packet->size = 0;
     frame->pts   = nextPts++; // nextPts starts at 0
