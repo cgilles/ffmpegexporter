@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     }
 
     FFmpegExporter converter;
-    converter.init(outputFile);
+    converter.init(outputFile, false, QRect(0, 0, 800, 600));
     int i = 0;
 
     foreach (const QString& filename, images)
