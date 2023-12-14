@@ -17,13 +17,14 @@ find_package(Qt5 5.15.0
              Gui
 )
 
+include(MacroBoolTo01)
 include(RulesFFmpeg)
 
 add_executable(ffmpegexporter
                ffmpegexporter.cpp
 )
 
-target_link_libraries(pgfdatabase
+target_link_libraries(ffmpegexporter
                       Qt5::Core
                       Qt5::Gui
                       ${MEDIAPLAYER_LIBRARIES}
