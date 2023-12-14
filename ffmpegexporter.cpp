@@ -10,7 +10,7 @@ FFmpegExporter::FFmpegExporter()
     errorstring = new char[ERROR_BUFSIZ];
 }
 
-void FFmpegExporter::init(const QString &fileName, bool crop, QRect rect)
+void FFmpegExporter::init(const QString &fileName, bool crop, const QRect& rect)
 {
     int error;
     this->fileName = fileName;
@@ -162,7 +162,7 @@ void FFmpegExporter::init(const QString &fileName, bool crop, QRect rect)
 
 }
 
-void FFmpegExporter::addframe(const QImage &img, int framenumber)
+void FFmpegExporter::addFrame(const QImage &img, int framenumber)
 {
     int error;
 

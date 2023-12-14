@@ -23,9 +23,12 @@
 // Qt includes
 
 #include <QFile>
+#include <QDir>
 #include <QImage>
 #include <QDebug>
 #include <QByteArray>
+#include <QString>
+#include <QStringList>
 #include <QCoreApplication>
 
 #include "ffmpegexporter.h"
@@ -36,14 +39,36 @@ int main(int argc, char** argv)
 {
     QCoreApplication(argc, argv);
 
-    if (argc != 2)
+    if (argc != 3)
     {
-        qInfo() << "ffmpegexporter - Load images list to convert in video stream";
-        qInfo() << "Usage: <output_video_file> <input_image_files>";
+        qInfo() << "ffmpegexporter - Load images list from a directory to convert in video stream";
+        qInfo() << "Usage: <input_directory> <output_video_file>";
         return -1;
     }
 
+    QString inputPath(QString::fromUtf8(argv[1]));
+    QString outputFile(QString::fromUtf8(argv[2]));
+
+    QDir dir(inputPath);
+    QStringList images = dir.entryList(QStringList() << "*.jpg" << "*.JPG", QDir::Files);
+
+    if (images.isEmpty())
+    {
+        qDebug() << "List of images is empty";
+        return 0;
+    }
+
     FFmpegExporter converter;
+    converter.init(outputFile);
+    int i = 0;
+
+    foreach (const QString& filename, images)
+    {
+        QImage img(filename);
+        converter.addFrame(img, i++);
+    }
+
+    converter.commitFile();
 
     return 0;
 }

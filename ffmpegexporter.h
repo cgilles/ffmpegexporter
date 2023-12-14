@@ -21,9 +21,9 @@ public:
     FFmpegExporter();
 
     // Call this before begining exporting.
-    void init(const QString &fileName, bool crop, QRect rect);
+    void init(const QString &fileName, bool crop = false, const QRect& rect = QRect());
 
-    void addframe(const QImage &img, int framenumber);
+    void addFrame(const QImage &img, int framenumber);
 
     // Call this after all the frames were encoded to write them to the file and close it.
     void commitFile();
